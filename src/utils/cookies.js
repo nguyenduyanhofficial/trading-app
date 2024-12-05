@@ -1,6 +1,5 @@
 export const setCookie = (name, value, hours = 8) => {
   const maxAge = hours * 60 * 60;
-  console.log(`Setting cookie with max-age: ${maxAge} seconds`);
 
   document.cookie = `${name}=${encodeURIComponent(
     value
