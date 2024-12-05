@@ -1,9 +1,8 @@
-import { useMemo } from "react";
-import { createTradingService } from "../services";
 import { getCookie } from "@/utils/cookies";
+import { useBroker } from "@/providers/BrokerProvider";
 
 export function useTradingService() {
-  const service = useMemo(() => createTradingService(), []);
+  const { tradingService } = useBroker();
 
   const getAuth = () => ({
     token: getCookie("jwt_token"),
@@ -15,49 +14,55 @@ export function useTradingService() {
     if (!auth.token || !auth.tradingToken) {
       throw new Error("Vui lòng đăng nhập lại");
     }
-    return service.placeOrder(orderData, auth);
+    return tradingService.placeOrder(orderData, auth);
   };
 
   const getAccountInfo = async () => {
     const { token } = getAuth();
     if (!token) throw new Error("Vui lòng đăng nhập lại");
-    return service.getAccountInfo(token);
+    return tradingService.getAccountInfo(token);
   };
 
   const getSubAccounts = async () => {
     const { token } = getAuth();
     if (!token) throw new Error("Vui lòng đăng nhập lại");
-    return service.getSubAccounts(token);
+    return tradingService.getSubAccounts(token);
   };
 
   const getBalance = async (accountNo) => {
     const { token } = getAuth();
     if (!token) throw new Error("Vui lòng đăng nhập lại");
-    return service.getBalance(token, accountNo);
+    return tradingService.getBalance(token, accountNo);
   };
 
   const getLoanPackages = async (accountNo) => {
     const { token } = getAuth();
     if (!token) throw new Error("Vui lòng đăng nhập lại");
-    return service.getLoanPackages(token, accountNo);
+    return tradingService.getLoanPackages(token, accountNo);
   };
 
   const getPPSE = async (accountNo, symbol, price, loanPackageId) => {
     const { token } = getAuth();
     if (!token) throw new Error("Vui lòng đăng nhập lại");
-    return service.getPPSE(token, accountNo, symbol, price, loanPackageId);
+    return tradingService.getPPSE(
+      token,
+      accountNo,
+      symbol,
+      price,
+      loanPackageId
+    );
   };
 
   const getOrders = async (accountNo) => {
     const { token } = getAuth();
     if (!token) throw new Error("Vui lòng đăng nhập lại");
-    return service.getOrders(token, accountNo);
+    return tradingService.getOrders(token, accountNo);
   };
 
   const getOrderDetail = async (orderId, accountNo) => {
     const { token } = getAuth();
     if (!token) throw new Error("Vui lòng đăng nhập lại");
-    return service.getOrderDetail(token, orderId, accountNo);
+    return tradingService.getOrderDetail(token, orderId, accountNo);
   };
 
   const cancelOrder = async (orderId, accountNo) => {
@@ -65,7 +70,7 @@ export function useTradingService() {
     if (!auth.token || !auth.tradingToken) {
       throw new Error("Vui lòng đăng nhập lại");
     }
-    return service.cancelOrder(
+    return tradingService.cancelOrder(
       auth.token,
       auth.tradingToken,
       orderId,
@@ -76,12 +81,12 @@ export function useTradingService() {
   const getDeals = async (accountNo) => {
     const { token } = getAuth();
     if (!token) throw new Error("Vui lòng đăng nhập lại");
-    return service.getDeals(token, accountNo);
+    return tradingService.getDeals(token, accountNo);
   };
 
   return {
-    login: service.login.bind(service),
-    verifyOTP: service.verifyOTP.bind(service),
+    login: tradingService.login.bind(tradingService),
+    verifyOTP: tradingService.verifyOTP.bind(tradingService),
     placeOrder,
     getAccountInfo,
     getSubAccounts,
