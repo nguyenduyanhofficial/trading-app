@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTradingService } from "@/hooks/use-trading";
+import { setCookie, getCookie } from "@/utils/cookies";
 
 export default function OTPVerification({ onSuccess }) {
   const { verifyOTP } = useTradingService();
@@ -7,9 +8,9 @@ export default function OTPVerification({ onSuccess }) {
 
   const handleVerifyOTP = async () => {
     try {
-      const token = localStorage.getItem("jwt_token");
+      const token = getCookie("jwt_token");
       const res = await verifyOTP(token, otp);
-      localStorage.setItem("trading_token", res.tradingToken);
+      setCookie("trading_token", res.tradingToken);
       onSuccess?.();
     } catch (error) {
       console.error("Xác thực OTP thất bại", error);

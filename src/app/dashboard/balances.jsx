@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getCookie } from "@/utils/cookies";
 import api from "@/utils/api";
 
 const Balances = ({ account }) => {
@@ -6,7 +7,7 @@ const Balances = ({ account }) => {
 
   useEffect(() => {
     const fetchBalances = async () => {
-      const token = localStorage.getItem("jwt_token");
+      const token = getCookie("jwt_token");
       const { data } = await api.get(
         `/dnse-order-service/account-balances/${account}`,
         {

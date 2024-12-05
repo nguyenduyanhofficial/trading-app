@@ -1,12 +1,13 @@
 import { useMemo } from "react";
 import { createTradingService } from "../services";
+import { getCookie } from "@/utils/cookies";
 
 export function useTradingService() {
   const service = useMemo(() => createTradingService(), []);
 
   const getAuth = () => ({
-    token: localStorage.getItem("jwt_token"),
-    tradingToken: localStorage.getItem("trading_token"),
+    token: getCookie("jwt_token"),
+    tradingToken: getCookie("trading_token"),
   });
 
   const placeOrder = async (orderData) => {

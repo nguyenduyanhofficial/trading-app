@@ -1,11 +1,13 @@
+import { setCookie, getCookie, removeCookie } from "./cookies";
+
 export const saveToken = (token) => {
-  localStorage.setItem("jwt_token", token);
+  setCookie("jwt_token", token);
 };
 
 export const getToken = () => {
-  return localStorage.getItem("jwt_token");
+  return getCookie("jwt_token");
 };
 
 export const clearToken = () => {
-  localStorage.removeItem("jwt_token");
+  removeCookie("jwt_token");
 };

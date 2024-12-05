@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTradingService } from "@/hooks/use-trading";
+import { setCookie } from "@/utils/cookies";
 
 export default function Login() {
   const { login } = useTradingService();
@@ -13,7 +14,7 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       const res = await login(username, password);
-      localStorage.setItem("jwt_token", res.token);
+      setCookie("jwt_token", res.token);
       router.push("/dashboard");
     } catch (error) {
       console.error("Đăng nhập thất bại", error);

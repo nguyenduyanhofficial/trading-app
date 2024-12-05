@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getCookie } from "@/utils/cookies";
 import api from "@/utils/api";
 
 const AccountDetails = () => {
@@ -7,7 +8,7 @@ const AccountDetails = () => {
   useEffect(() => {
     const fetchAccountDetails = async () => {
       try {
-        const token = localStorage.getItem("jwt_token");
+        const token = getCookie("jwt_token");
         const { data } = await api.get("/dnse-user-service/api/me", {
           headers: { Authorization: `Bearer ${token}` },
         });

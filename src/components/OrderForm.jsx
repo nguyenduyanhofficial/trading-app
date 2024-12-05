@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { useTradingService } from "../hooks/use-trading";
 import OTPVerification from "./OTPVerification";
 import Alert from "./Alert";
+import { getCookie } from "@/utils/cookies";
 
 export default function OrderForm() {
   const { placeOrder, getSubAccounts, getLoanPackages, getPPSE } =
     useTradingService();
   const [hasTradeToken, setHasTradeToken] = useState(
-    !!localStorage.getItem("trading_token")
+    !!getCookie("trading_token")
   );
   const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [subAccounts, setSubAccounts] = useState({ accounts: [] });
