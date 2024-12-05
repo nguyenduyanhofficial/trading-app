@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { useTradingService } from "../hooks/use-trading";
 import OrderDetail from "./OrderDetail";
