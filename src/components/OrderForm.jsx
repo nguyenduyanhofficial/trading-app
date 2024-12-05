@@ -10,7 +10,7 @@ export default function OrderForm() {
   const [hasTradeToken, setHasTradeToken] = useState(
     !!getCookie("trading_token")
   );
-  const [showOTPVerification, setShowOTPVerification] = useState(false);
+  const [showOTPInput, setShowOTPInput] = useState(false);
   const [subAccounts, setSubAccounts] = useState({ accounts: [] });
 
   const [symbol, setSymbol] = useState("");
@@ -25,8 +25,6 @@ export default function OrderForm() {
   const [ppse, setPPSE] = useState(null);
 
   const [error, setError] = useState(null);
-
-  const isFormDisabled = !hasTradeToken;
 
   useEffect(() => {
     const fetchSubAccounts = async () => {
@@ -78,7 +76,7 @@ export default function OrderForm() {
     setError(null);
 
     if (!hasTradeToken) {
-      setShowOTPVerification(true);
+      setShowOTPInput(true);
       return;
     }
 
@@ -102,6 +100,12 @@ export default function OrderForm() {
         (currentTimeInMinutes >= afternoonSessionStart &&
           currentTimeInMinutes <= afternoonSessionEnd);
 
+      if (!isInTradingHours && !["ATO", "ATC"].includes(orderType)) {
+        throw new Error(
+          "Không thể đặt lệnh ngoài giờ giao dịch (09:00-11:30 và 13:00-14:30)"
+        );
+      }
+
       if (
         orderType === "ATO" &&
         currentTimeInMinutes > morningSessionStart + 15
@@ -114,10 +118,6 @@ export default function OrderForm() {
         currentTimeInMinutes < afternoonSessionEnd - 15
       ) {
         throw new Error("Lệnh ATC chỉ được đặt trong 15 phút cuối phiên chiều");
-      }
-
-      if (!isInTradingHours && !["ATO", "ATC"].includes(orderType)) {
-        throw new Error("Không thể đặt lệnh ngoài giờ giao dịch");
       }
 
       if (side === "NB" && !selectedLoanPackage) {
@@ -141,36 +141,19 @@ export default function OrderForm() {
     }
   };
 
-  const isSubmitDisabled =
-    isFormDisabled || (side === "NB" && !selectedLoanPackage);
-
-  if (showOTPVerification) {
-    return (
-      <OTPVerification
-        onSuccess={() => {
-          setHasTradeToken(true);
-          setShowOTPVerification(false);
-        }}
-      />
-    );
-  }
-
   return (
     <div>
       {error && <Alert message={error} onClose={() => setError(null)} />}
       <h2 className="text-xl font-bold mb-4">Đặt lệnh</h2>
-      {isFormDisabled && (
-        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-yellow-700">
-            Thời gian giao dịch:
-            <br />
-            - Phiên sáng: 09:00 - 11:30
-            <br />
-            - Phiên chiều: 13:00 - 14:30
-            <br />
-            - ATO: 15 phút đầu phiên sáng
-            <br />- ATC: 15 phút cuối phiên chiều
-          </p>
+
+      {showOTPInput && (
+        <div className="mb-4">
+          <OTPVerification
+            onSuccess={() => {
+              setHasTradeToken(true);
+              setShowOTPInput(false);
+            }}
+          />
         </div>
       )}
 
@@ -178,9 +161,8 @@ export default function OrderForm() {
         <select
           value={accountNo}
           onChange={(e) => setAccountNo(e.target.value)}
-          className="w-full p-2 border rounded disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="w-full p-2 border rounded"
           required
-          disabled={isFormDisabled}
         >
           <option value="">Chọn tài khoản</option>
           {subAccounts?.accounts?.map((acc) => (
@@ -198,8 +180,7 @@ export default function OrderForm() {
               );
               setSelectedLoanPackage(selected);
             }}
-            className="w-full p-2 border rounded disabled:bg-gray-100 disabled:cursor-not-allowed"
-            disabled={isFormDisabled}
+            className="w-full p-2 border rounded"
           >
             <option value="">Chọn gói vay</option>
             {loanPackages.map((pkg) => (
@@ -214,16 +195,14 @@ export default function OrderForm() {
           placeholder="Mã cổ phiếu"
           value={symbol}
           onChange={(e) => setSymbol(e.target.value)}
-          className="w-full p-2 border rounded disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="w-full p-2 border rounded"
           required
-          disabled={isFormDisabled}
         />
         <select
           value={side}
           onChange={(e) => setSide(e.target.value)}
-          className="w-full p-2 border rounded disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="w-full p-2 border rounded"
           required
-          disabled={isFormDisabled}
         >
           <option value="NB">Mua</option>
           <option value="NS">Bán</option>
@@ -231,9 +210,8 @@ export default function OrderForm() {
         <select
           value={orderType}
           onChange={(e) => setOrderType(e.target.value)}
-          className="w-full p-2 border rounded disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="w-full p-2 border rounded"
           required
-          disabled={isFormDisabled}
         >
           <option value="LO">Lệnh giới hạn (LO)</option>
           <option value="MP">Lệnh thị trường (MP)</option>
@@ -249,9 +227,8 @@ export default function OrderForm() {
               placeholder="Giá"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full p-2 border rounded disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full p-2 border rounded"
               required
-              disabled={isFormDisabled}
             />
           </div>
         )}
@@ -261,9 +238,8 @@ export default function OrderForm() {
           placeholder="Khối lượng"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          className="w-full p-2 border rounded disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="w-full p-2 border rounded"
           required
-          disabled={isFormDisabled}
         />
         {ppse && side === "NB" && (
           <div className="p-4 bg-gray-50 rounded-lg">
@@ -278,8 +254,8 @@ export default function OrderForm() {
           type="submit"
           className={`w-full p-2 text-white rounded ${
             side === "NB" ? "bg-green-500" : "bg-red-500"
-          } disabled:opacity-50 disabled:cursor-not-allowed`}
-          disabled={isSubmitDisabled}
+          }`}
+          disabled={side === "NB" && !selectedLoanPackage}
         >
           {side === "NB" ? "Đặt lệnh mua" : "Đặt lệnh bán"}
         </button>
