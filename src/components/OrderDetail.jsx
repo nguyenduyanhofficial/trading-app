@@ -21,7 +21,7 @@ export default function OrderDetail({ orderId, accountNo, onClose }) {
     if (orderId && accountNo) {
       fetchOrderDetail();
     }
-  }, [orderId, accountNo]);
+  }, [orderId, accountNo, getOrderDetail]);
 
   if (loading) return <div>Đang tải...</div>;
   if (!order) return null;

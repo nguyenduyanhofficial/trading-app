@@ -1,3 +1,5 @@
+"use client";
+
 import { getCookie } from "@/utils/cookies";
 import { useBroker } from "@/providers/BrokerProvider";
 

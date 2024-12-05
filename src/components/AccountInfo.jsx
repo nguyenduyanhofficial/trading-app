@@ -23,8 +23,7 @@ export default function AccountInfo({ onSelectAccount }) {
         setSubAccounts(accountsData);
 
         if (accountsData.accounts.length > 0) {
-          const defaultAccount =
-            accountsData.default || accountsData.accounts[0];
+          const defaultAccount = accountsData.default || accountsData.accounts[0];
           setSelectedAccount(defaultAccount);
           onSelectAccount?.(defaultAccount.id);
 
@@ -37,7 +36,7 @@ export default function AccountInfo({ onSelectAccount }) {
     };
 
     fetchData();
-  }, [onSelectAccount]);
+  }, [getAccountInfo, getSubAccounts, getBalance, onSelectAccount]);
 
   const handleAccountChange = async (accountId) => {
     try {

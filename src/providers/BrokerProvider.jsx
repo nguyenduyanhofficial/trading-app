@@ -8,6 +8,9 @@ const BrokerContext = createContext(null);
 
 export function BrokerProvider({ children }) {
   const [currentBroker, setCurrentBroker] = useState(() => {
+    if (typeof window === "undefined") {
+      return BROKERS.DNSE;
+    }
     return getUserBroker() || BROKERS.DNSE;
   });
   const tradingService = createTradingService(currentBroker);
