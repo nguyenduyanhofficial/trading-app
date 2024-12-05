@@ -1,8 +1,10 @@
 export const setCookie = (name, value, hours = 8) => {
-  const expires = new Date(Date.now() + hours * 60 * 60 * 1000).toUTCString();
+  const maxAge = hours * 60 * 60;
+  console.log(`Setting cookie with max-age: ${maxAge} seconds`);
+
   document.cookie = `${name}=${encodeURIComponent(
     value
-  )}; expires=${expires}; path=/; Secure; SameSite=Strict`;
+  )}; max-age=${maxAge}; path=/; Secure; SameSite=Strict`;
 };
 
 export const getCookie = (name) => {
