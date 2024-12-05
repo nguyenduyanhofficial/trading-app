@@ -1,5 +1,6 @@
 import { BaseTradingService } from "../base/base-trading.service";
 import { DNSE_ENDPOINTS } from "./constants";
+import { DNSEAdapter } from "./dnse.adapter";
 
 export class DNSEService extends BaseTradingService {
   constructor() {
@@ -7,71 +8,97 @@ export class DNSEService extends BaseTradingService {
   }
 
   async login(username, password) {
-    return this.request({
-      method: "POST",
-      url: DNSE_ENDPOINTS.AUTH.LOGIN,
-      data: { username, password },
-      headers: { "Content-Type": "application/json" },
-    });
+    try {
+      const response = await this.request({
+        method: "POST",
+        url: DNSE_ENDPOINTS.AUTH.LOGIN,
+        data: { username, password },
+        headers: { "Content-Type": "application/json" },
+      });
+      return response;
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async verifyOTP(token, otp) {
-    return this.request({
-      method: "POST",
-      url: DNSE_ENDPOINTS.AUTH.VERIFY_OTP,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "smart-otp": otp,
-      },
-    });
+    try {
+      const response = await this.request({
+        method: "POST",
+        url: DNSE_ENDPOINTS.AUTH.VERIFY_OTP,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "smart-otp": otp,
+        },
+      });
+      return response;
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async getAccountInfo(token) {
-    return this.request({
-      method: "GET",
-      url: DNSE_ENDPOINTS.USER.GET_INFO,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const response = await this.request({
+        method: "GET",
+        url: DNSE_ENDPOINTS.USER.GET_INFO,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async getSubAccounts(token) {
-    const response = await this.request({
-      method: "GET",
-      url: DNSE_ENDPOINTS.TRADING.GET_ACCOUNTS,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return {
-      default: response.default,
-      accounts: response.accounts || [],
-    };
+    try {
+      const response = await this.request({
+        method: "GET",
+        url: DNSE_ENDPOINTS.TRADING.GET_ACCOUNTS,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return DNSEAdapter.transformAccountResponse(response);
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async getBalance(token, accountNo) {
-    return this.request({
-      method: "GET",
-      url: `${DNSE_ENDPOINTS.TRADING.GET_BALANCE}/${accountNo}`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const response = await this.request({
+        method: "GET",
+        url: `${DNSE_ENDPOINTS.TRADING.GET_BALANCE}/${accountNo}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return DNSEAdapter.transformBalanceResponse(response);
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async placeOrder(orderData, auth) {
-    const { token, tradingToken } = auth;
-    return this.request({
-      method: "POST",
-      url: DNSE_ENDPOINTS.TRADING.PLACE_ORDER,
-      data: orderData,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Trading-Token": tradingToken,
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const transformedData = DNSEAdapter.transformOrderRequest(orderData);
+      const response = await this.request({
+        method: "POST",
+        url: DNSE_ENDPOINTS.TRADING.PLACE_ORDER,
+        data: transformedData,
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+          "Trading-Token": auth.tradingToken,
+          "Content-Type": "application/json",
+        },
+      });
+      return DNSEAdapter.transformOrderResponse(response);
+    } catch (error) {
+      throw this.handleError(error);
+    }
   }
 
   async getLoanPackages(token, accountNo) {
